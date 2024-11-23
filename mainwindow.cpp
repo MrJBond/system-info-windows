@@ -1,11 +1,16 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    m_provider = SystemInfoProvider();
+    int horizontal = 0, vertical = 0;
+    m_provider.getDesktopResolution(horizontal, vertical);
+    this->resize(horizontal, vertical);
     ui->label->setText(QString("The info about the system will be here soon!"));
 }
 
@@ -17,23 +22,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-ULONGLONG printMemoryStatus() {
-    MEMORYSTATUSEX memoryStatus;
-    memoryStatus.dwLength = sizeof(MEMORYSTATUSEX);
 
-    if (GlobalMemoryStatusEx(&memoryStatus)) {
-        DWORDLONG totalPhys = memoryStatus.ullTotalPhys;  // Total physical memory
-        DWORDLONG availPhys = memoryStatus.ullAvailPhys;  // Available physical memory
-        DWORDLONG usedPhys = totalPhys - availPhys;       // Used physical memory
-
-        qDebug() << "Total Physical Memory: " << totalPhys / (1024 * 1024) << " MB\n";
-        qDebug() << "Available Physical Memory: " << availPhys / (1024 * 1024) << " MB\n";
-        qDebug() << "Used Physical Memory: " << usedPhys / (1024 * 1024) << " MB\n";
-        return usedPhys;
-    } else {
-        throw std::runtime_error("Failed to get memory status. Error: " + std::to_string(GetLastError()));
-    }
-}
 #include <thread>
 void MainWindow::on_graph_clicked()
 {
@@ -52,7 +41,7 @@ void MainWindow::on_graph_clicked()
         }
         ULONGLONG mem = 0;
         try{
-            mem = printMemoryStatus();
+            mem = m_provider.printMemoryStatus();
         }
         catch(const std::runtime_error& e){
             qDebug() << e.what();

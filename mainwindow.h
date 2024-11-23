@@ -2,11 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QDebug>
-#include <windows.h>
-#include <wbemidl.h>
 #include "plotbuilder.h"
-#include "sysinfoapi.h"
+#include <QSizePolicy>
+#include "systeminfoprovider.h"
+
 #pragma comment(lib, "wbemuuid.lib")
 
 QT_BEGIN_NAMESPACE
@@ -29,5 +28,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
     PlotBuilder *m_plot_builder = nullptr;
+    SystemInfoProvider m_provider;
 };
 #endif // MAINWINDOW_H
